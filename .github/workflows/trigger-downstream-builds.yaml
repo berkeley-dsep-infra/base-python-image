@@ -1,0 +1,63 @@
+name: Trigger Downstream Builds
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Which downstream group to build?"
+        required: true
+        type: choice
+        options:
+          - base
+          - user
+      base_image_name:
+        description: "Base image name"
+        required: true
+      base_image_sha:
+        description: "Base image SHA"
+        required: true
+
+jobs:
+  discover-and-trigger:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Discover repos using base image
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+        run: |
+          QUERY="org:YOUR_ORG \"FROM us-central1-docker.pkg.dev/${{ github.event.inputs.base_image_name }}\""
+
+          REPOS=$(gh api \
+            search/code \
+            -f q="$QUERY" \
+            --jq '.items[].repository.full_name' | sort -u)
+
+          echo "Discovered repos:"
+          echo "$REPOS"
+
+          for repo in $REPOS; do
+            NAME=$(basename $repo)
+
+            if [[ "${{ github.event.inputs.target }}" == "base" ]]; then
+              if [[ "$NAME" =~ ^base-.*-image$ ]] && [[ "$NAME" != "base-python-image" ]]; then
+                echo "Triggering BASE downstream: $repo"
+
+                gh api \
+                  -X POST /repos/$repo/dispatches \
+                  -F event_type=update-base-image \
+                  -F client_payload="{\"base_image_name\":\"${{ github.event.inputs.base_image_name }}\",\"base_image_sha\":\"${{ github.event.inputs.base_image_sha }}\"}"
+              fi
+            fi
+
+            if [[ "${{ github.event.inputs.target }}" == "user" ]]; then
+              if [[ ! "$NAME" =~ ^base-.*-image$ ]]; then
+                echo "Triggering USER downstream: $repo"
+
+                gh api \
+                  -X POST /repos/$repo/dispatches \
+                  -F event_type=update-base-image \
+                  -F client_payload="{\"base_image_name\":\"${{ github.event.inputs.base_image_name }}\",\"base_image_sha\":\"${{ github.event.inputs.base_image_sha }}\"}"
+              fi
+            fi
+          done
