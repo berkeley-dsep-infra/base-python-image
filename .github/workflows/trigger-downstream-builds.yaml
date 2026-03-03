@@ -119,12 +119,11 @@ jobs:
               PAYLOAD=$(jq -n \
                 --arg name "$BASE_NAME" \
                 --arg sha "$BASE_SHA" \
-                --arg type "$WORKFLOW_TYPE" \
                 '{base_image_name: $name,
                   base_image_sha: $sha}')
 
               gh api -X POST "/repos/$repo/dispatches" \
-                -F event_type=update-base-image \
+                -F event_type=base-image-updated \
                 -F client_payload="$PAYLOAD"
             fi
           done
