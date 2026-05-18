@@ -7,12 +7,14 @@ rsync
 vim
 wget
 zip
+tar
 screen
 man
 man-db
 manpages-posix
 manpages-dev
 manpages-posix-dev
+tini
 
 # Regular build tools for compiling common stuff
 build-essential
@@ -44,6 +46,6 @@ libxdamage1
 libxfixes3
 libxrandr2
 libgbm1
-libasound2
+libasound2t64
 
 
