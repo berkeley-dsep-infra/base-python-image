@@ -125,8 +125,7 @@ FROM base AS final
 
 USER root
 
-COPY --from=srv-conda /srv/conda /srv/conda
-RUN chown -R ${NB_USER}:${NB_USER} /srv/conda
+COPY --from=srv-conda --chown=${NB_USER}:${NB_USER} /srv/conda /srv/conda
 
 USER ${NB_USER}
 
@@ -135,3 +134,7 @@ ENV PATH=${CONDA_DIR}/envs/notebook/bin:${CONDA_DIR}/bin:${DEFAULT_PATH}
 # Cleanup temp files
 USER root
 RUN rm -rf /tmp/*
+
+# Run as the notebook user by default (matches how the hub runs the image)
+USER ${NB_USER}
+WORKDIR /home/${NB_USER}

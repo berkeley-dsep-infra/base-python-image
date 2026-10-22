@@ -33,7 +33,7 @@ dependencies:
   - otter-grader==6.1.6
   - wrapt==1.17.3
   # Using python 3.11 for maximum compatibility with conda packages.
-  - python==3.11
+  - python=3.11
   - pip==26.0.1
   # datascience packages
   - datascience==0.18.1
@@ -44,7 +44,7 @@ dependencies:
   - scipy==1.17.0
   - seaborn==0.13.2
   - statsmodels==0.14.6
-  - matplotlib==3.10.3
+  - matplotlib-base==3.10.3
   - matplotlib-inline==0.2.1
   - ipympl==0.10.0
   - sympy==1.14.0
